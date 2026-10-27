@@ -22,6 +22,19 @@ A lightweight vLLM implementation built from scratch.
 pip install git+https://github.com/GeeeekExplorer/nano-vllm.git
 ```
 
+## Apple Silicon (MPS) and CPU
+
+Without CUDA, Nano-vLLM falls back to a pure PyTorch attention path over the same paged KV cache, picking the device automatically (`cuda` → `mps` → `cpu`). You can also pass `device="mps"` or `device="cpu"` to `LLM`. On these devices:
+
+* FlashAttention, Triton, CUDA graphs and `torch.compile` are not used, so expect it to be much slower than on CUDA.
+* Tensor parallelism is not supported (`tensor_parallel_size` must be 1).
+* The KV cache is sized from `gpu_memory_utilization` of the memory Metal recommends (or system RAM on CPU). Set `num_kvcache_blocks` to size it yourself.
+* Qwen3 weights are bfloat16, which MPS supports on macOS 14 or newer.
+
+```bash
+pip install git+https://github.com/GeeeekExplorer/nano-vllm.git   # skips flash-attn and triton on macOS
+```
+
 ## Model Download
 
 To download the model weights manually, use the following command:
